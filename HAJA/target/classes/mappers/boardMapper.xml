@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 다른 mapper와 중복되지 않도록 네임스페이스 기재 -->
+<mapper namespace="board">
+	<!-- 게시물 목록 -->
+	<select id="listAll" resultType="boardDTO">
+		select *
+		from (
+			select rownum as rn, A.*
+			from (
+				select bno,category,place,title,teamid,calendar,isrec,writer
+				from board b, member m
+				where b.writer=m.userid
+				<choose>
+					<when test="category == 'all'">
+					</when>
+					<otherwise>
+					and category=#{category}
+					</otherwise>
+				</choose>
+				and show='y'
+				and (title like #{keyword} or teamid like #{keyword})
+				order by bno desc
+			) A
+		) where rn between #{start} and #{end}
+	</select>
+
+	<!-- 게시물 개수 -->
+	<select id="countArticle" resultType="int">
+		select count(*)
+		from board b, member m
+		where b.writer=m.userid
+		<choose>
+			<when test="category == 'all'">
+			</when>
+			<otherwise>
+			and category=#{category}
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="isrec == 'all'">
+			</when>
+			<otherwise>
+			and isrec=#{isrec}
+			</otherwise>
+		</choose>
+		and show='y'
+		and (title like #{keyword} or teamid like #{keyword})
+	</select>
+
+	<!-- 게시물 삭제 -->
+	<delete id="delete">
+		update board set show='n'
+		where bno=#{bno}
+	</delete>
+
+	<!-- 게시물 읽기 -->
+	<select id="read" resultType="boardDTO">
+		select bno,writer,title,category,viewcnt,teamid,tel,email,calendar,place,content,isrec
+		from member m, board b
+		where b.writer=m.userid
+		and bno=#{bno}
+	</select>
+	
+	<!-- 게시물 작성 -->
+	<insert id="insert">
+	insert into board (bno,category,place,title,writer,calendar,isrec,regdate,show)
+	values (board_seq.nextval,#{category},#{place},#{title},#{writer},#{calendar},'y',sysdate,'y')
+	</insert>
+	
+	<!-- 조회수 증가 처리 -->
+	<update id="increaseViewcnt">
+	update board set viewcnt=viewcnt+1
+	where bno=#{bno}
+	</update>
+	
+	<!-- 매칭여부 처리 -->
+	<update id="changeIsrec">
+	update board set isrec=#{isrec}
+	where bno=#{bno}
+	</update>
+	
+	<!-- 작성자 찾기 -->
+	<select id="findWriter" resultType="String">
+	select writer
+	from board
+	where bno=#{bno}
+	</select>
+	
+	<!-- 게시물 내용 수정 -->
+	<update id="update">
+	update board set
+	category=#{category},place=#{place},
+	title=#{title},calendar=#{calendar},content=#{content}
+	where bno=#{bno}
+	</update>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

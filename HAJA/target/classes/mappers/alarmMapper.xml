@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 다른 mapper와 중복되지 않도록 네임스페이스 기재 -->
+<mapper namespace="alarm">
+	<insert id="create">
+	insert into alarm (ano,bno,userid,alarmtext,isview)
+	values (alarm_seq.nextval,#{bno},#{userid},#{alarmtext},'n')
+	</insert>
+	
+	<select id="count" resultType="int">
+	select count(*)
+	from alarm
+	where userid=#{userid}
+	</select>
+	
+	<select id="countNview" resultType="int">
+	select count(*)
+	from alarm
+	where userid=#{userid} and isview='n'
+	</select>
+	
+	<select id="list3" resultType="alarmDTO">
+	select *
+	from (
+		select rownum as rn,A.*
+		from (
+			select ano,alarmtext,regdate
+			from alarm
+			where userid=#{userid} and isview='n'
+			order by ano desc
+		) A
+	) where rn between 1 and 3
+	</select>
+	
+	<update id="list3Yview">
+	update alarm
+	set isview='y'
+	where ano in (select ano
+				  from (
+				  	select rownum as rn,A.*
+				  	from (
+				  		select ano
+				  		from alarm
+				  		where userid=#{userid} and isview='n'
+				  		order by ano desc
+				  	) A
+				  ) where rn between 1 and 3
+				 )
+	</update>
+	
+	<select id="listAll" resultType="alarmDTO">
+	select *
+	from (
+		select rownum as rn,A.*
+		from (
+			select ano,alarmtext,regdate
+			from alarm
+			where userid=#{userid}
+			order by ano desc
+		) A
+	) where rn between #{start} and #{end}
+	</select>
+	
+	<update id="listAllYview">
+	update alarm
+	set isview='y'
+	where ano in (select ano
+				  from (
+				  	select rownum as rn,A.*
+				  	from (
+				  		select ano
+				  		from alarm
+				  		where userid=#{userid}
+				  		order by ano desc
+				  	) A
+				  ) where rn between #{start} and #{end}
+				 )
+	</update>
+	
+	<delete id="delete">
+	delete from alarm
+	where ano=#{ano}
+	</delete>
+	
+	<select id="findUserid" resultType="String">
+	select userid
+	from alarm
+	where ano=#{ano}
+	</select>
+	
+	<insert id="deleteCreate">
+	insert into alarm(ano,bno,userid,alarmtext,isview)
+	select alarm_seq.nextval,#{bno},userid,#{alarmtext},'n'
+	from (select DISTINCT userid from join where bno=#{bno})
+	</insert>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 다른 mapper와 중복되지 않도록 네임스페이스 기재 -->
+<mapper namespace="message">
+	<insert id="create">
+	insert into message (mno,send,receive,text,isview)
+	values (message_seq.nextval,#{send},#{receive},#{text},#{isview})
+	</insert>
+	
+	<select id="findReceive" resultType="String">
+	select receive
+	from message
+	where mno=#{mno}
+	</select>
+	
+	<select id="countNview" resultType="int">
+	select count(*)
+	from message
+	where receive=#{receive} and isview='n'
+	</select>
+	
+	<select id="count" resultType="int">
+	select count(*)
+	from message
+	where receive=#{receive}
+	</select>
+	
+	<select id="list3" resultType="messageDTO">
+	select *
+	from (
+		select rownum as rn,A.*
+		from (
+			select mno,text,send,regdate
+			from message
+			where receive=#{receive} and isview='n'
+			order by mno desc
+		) A
+	) where rn between 1 and 3
+	</select>
+	
+	<update id="list3Yview">
+	update message
+	set isview='y'
+	where mno in (select mno
+				  from (
+				  	select rownum as rn,A.*
+				  	from (
+				  		select mno
+				  		from message
+				  		where receive=#{receive} and isview='n'
+				  		order by mno desc
+				  	) A
+				  ) where rn between 1 and 3
+				 )
+	</update>
+	
+	<select id="listAll" resultType="messageDTO">
+	select *
+	from (
+		select rownum as rn,A.*
+		from (
+			select mno,send,text,regdate
+			from message
+			where receive=#{receive}
+			order by mno desc
+		) A
+	) where rn between #{start} and #{end}
+	</select>
+	
+	<update id="listAllYview">
+	update message
+	set isview='y'
+	where mno in (select mno
+				  from (
+				  	select rownum as rn,A.*
+				  	from (
+				  		select mno
+				  		from message
+				  		where receive=#{receive}
+				  		order by mno desc
+				  	) A
+				  ) where rn between #{start} and #{end}
+				 )
+	</update>
+	
+	<delete id="delete">
+	delete from message
+	where mno=#{mno}
+	</delete>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

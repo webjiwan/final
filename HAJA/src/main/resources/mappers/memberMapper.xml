@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 다른 mapper와 중복되지 않도록 네임스페이스 기재 -->
+<mapper namespace="member">
+	<insert id="insertMember">
+	INSERT INTO member (userid,passwd,name,email,ssn1,ssn2,teamid,tel)
+	values (#{userid},#{passwd},#{name},#{email},#{ssn1},#{ssn2},#{teamid},#{tel}) 
+	</insert>
+
+	<!-- parameterType="com.example.HAJA.model.member.dto.MemberDTO" -->
+	<select id="memberList" resultType="memberDTO">
+	select *
+	from (
+		select rownum as rn,a.*
+		from (
+			select *
+			from member
+			where userid like #{keyword}
+			order by name
+		) a
+	) where rn between #{start} and #{end}
+	</select>
+	
+	<select id="countMember" resultType="int">
+	select count(*) 
+	from member
+	</select>
+	
+	<select id="login_check" resultType="String">
+	select name 
+	from member
+	where userid=#{userid} and passwd=#{passwd} 
+	</select>
+	
+	<select id="viewMember" resultType="memberDTO">
+	select * 
+	from member
+	where userid=#{userid} 
+	</select>
+	
+	<update id="updateMember">
+	update member
+	set passwd=#{passwd}, name=#{name}, email=#{email}, teamid=#{teamid} , tel=#{tel}
+	where userid=#{userid} 
+	</update>
+	
+	<!-- 수정용 비밀번호 체크 -->
+	<select id="checkPw" resultType="int">
+	select count(*) from member
+	where userid=#{userid} and passwd=#{passwd} 
+	</select>
+	
+	<!-- 회원 삭제 -->
+	<delete id="deleteMember">
+	delete from member
+	where userid=#{userid} 
+	</delete>
+	
+	<!-- 아이디 찾기 -->
+	<select id="find_id" parameterType="String" resultType="String">
+	select userid from member where email=#{email}
+	</select>
+		
+	<!-- 비밀번호 찾기 -->
+	<select id="find_pw" parameterType="String" resultType="String">
+	select passwd
+	from member
+	where userid=#{userid} and ssn1=#{ssn1} and ssn2=#{ssn2} 
+	</select>
+	
+	<!-- 이메일 중복 체크 -->
+   <select id="emailCheck" parameterType="memberDTO" resultType="int">
+      SELECT COUNT(*) FROM MEMBER WHERE email= #{email}
+   </select>
+   
+   <!-- 아이디 중복 체크 -->
+   <select id="idCheck" parameterType="memberDTO" resultType="int">
+      SELECT COUNT(*) FROM MEMBER WHERE userid= #{userid}
+   </select>
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

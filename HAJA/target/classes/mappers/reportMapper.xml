@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 다른 mapper와 중복되지 않도록 네임스페이스 기재 -->
+<mapper namespace="report">
+	<insert id="create">
+	insert into report (rno,send,receive,category,text)
+	values (report_seq.nextval,#{send},#{receive},#{category},#{text})
+	</insert>
+	
+	<select id="duplicate" resultType="int">
+	select count(*)
+	from report
+	where send=#{send} and receive=#{receive}
+	</select>
+	
+	<select id="count" resultType="int">
+	select count(*)
+	from report
+	where receive=#{receive}
+	</select>
+	
+	<select id="categoryCount" resultType="int">
+	select count(*)
+	from report
+	where receive=#{receive} and category like #{category}
+	</select>
+	
+	<select id="listAll" resultType="reportDTO">
+	select *
+	from (
+		select rownum as rn,A.*
+		from (
+			select rno,send,category,text,regdate
+			from report
+			where receive=#{receive}
+			order by rno desc
+		) A
+	) where rn between #{start} and #{end}
+	</select>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

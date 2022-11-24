@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<typeAliases>
+		<typeAlias type="com.example.HAJA.model.board.dto.BoardDTO" alias="boardDTO" />
+		<typeAlias type="com.example.HAJA.model.member.dto.MemberDTO" alias="memberDTO" />
+		<typeAlias type="com.example.HAJA.model.board.dto.ReplyDTO" alias="replyDTO" />
+		<typeAlias type="com.example.HAJA.model.board.dto.JoinDTO" alias="joinDTO"/>
+		<typeAlias type="com.example.HAJA.model.member.dto.AlarmDTO" alias="alarmDTO" />
+		<typeAlias type="com.example.HAJA.model.member.dto.MessageDTO" alias="messageDTO" />
+		<typeAlias type="com.example.HAJA.model.member.dto.ReportDTO" alias="reportDTO" />
+	</typeAliases>
+
+</configuration>
+

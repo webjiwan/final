@@ -1,0 +1,182 @@
+DB : oracle
+
+-- 계정 생성
+create user HAJA identified by 1234;
+
+-- 권한 부여
+grant connect, resource, dba to HAJA;
+
+commit;
+
+
+-- member table 생성
+
+create table member (
+	userid varchar2(50) not null primary key,
+	passwd varchar2(50) not null,
+	name varchar2(50) not null,
+	email varchar2(50),
+	join_date date default sysdate,
+	teamid varchar2(50) not null,
+	tel varchar2(20) not null,
+	ssn1 varchar2(10) not null,
+	ssn2 varchar2(10) not null,
+	isadmin varchar2(1)
+);
+
+commit;
+
+-- board table 생성
+
+create table board (
+	bno number not null primary key,
+	title varchar2(200) not null,
+	content clob,
+	writer varchar2(50) not null,
+	regdate date default sysdate,
+	viewcnt number default 0,
+	category varchar2(20) not null,
+	isrec varchar2(1) not null,
+	calendar date not null,
+	place varchar2(200) not null,
+	show varchar2(1) not null
+);
+
+-- board table sequence 생성
+
+create sequence board_seq
+start with 1
+increment by 1;
+
+commit;
+
+-- reply table 생성
+
+create table reply (
+	rno number not null primary key,
+	bno number default 0,
+	replytext varchar2(1000) not null,
+	replyer varchar2(50) not null,
+	regdate date default sysdate,
+	updatedate date default sysdate
+);
+
+-- reply table constraint 추가
+
+alter table reply add constraint reply_fk_board
+foreign key(bno) references board(bno);
+
+-- reply table sequence 추가
+
+create sequence reply_seq
+start with 1
+increment by 1;
+
+commit;
+
+-- join table 생성
+
+create table join (
+	jno number not null primary key,
+    bno number default 0,
+    userid varchar2(50) not null,
+    userid2 varchar2(50) not null,
+    ismatch varchar2(1)
+);
+
+-- join table constraint 추가
+
+alter table join add constraint join_fk_board
+foreign key(bno) references board(bno) on delete cascade;
+
+alter table join add constraint join_fk_member
+foreign key(userid) references member(userid) on delete cascade;
+	
+alter table join add constraint join_fk_member2
+foreign key(userid2) references member(userid) on delete cascade;
+
+-- join table sequence 추가
+
+create sequence join_seq
+start with 1
+increment by 1;
+
+commit;
+
+-- alarm table 생성
+
+create table alarm (
+    ano number not null primary key,
+    bno number default 0,
+    userid varchar2(50) not null,
+    alarmtext varchar2(1000) not null,
+    regdate date default sysdate,
+    isview varchar2(1)
+);
+
+-- alarm table constraint 추가
+
+alter table alarm add constraint alarm_fk_member
+foreign key(userid) references member(userid) on delete cascade;
+
+-- alarm table sequence 추가
+
+create sequence alarm_seq
+start with 1
+increment by 1;
+
+commit;
+
+-- message table 생성
+
+create table message (
+    mno number not null primary key,
+    send varchar2(50) not null,
+    receive varchar2(50) not null,
+    text varchar2(1000) not null,
+    regdate date default sysdate,
+    isview varchar2(1)
+);
+
+-- message table constraint 추가
+
+alter table message add constraint message_send_fk_member
+foreign key(send) references member(userid) on delete cascade;
+
+alter table message add constraint message_receive_fk_member
+foreign key(receive) references member(userid) on delete cascade;
+
+-- message table sequence 추가
+
+create sequence message_seq
+start with 1
+increment by 1;
+
+commit;
+
+-- report table 생성
+
+create table report (
+    rno number not null primary key,
+    send varchar2(50) not null,
+    receive varchar2(50) not null,
+    category varchar2(100) not null,
+    text varchar2(1000) not null,
+    regdate date default sysdate
+);
+
+-- report table constraint 추가
+
+alter table report add constraint report_send_fk_member
+foreign key(send) references member(userid) on delete cascade;
+
+alter table report add constraint report_receive_fk_member
+foreign key(receive) references member(userid) on delete cascade;
+
+-- report table sequence 추가
+
+create sequence report_seq
+start with 1
+increment by 1;
+
+commit;

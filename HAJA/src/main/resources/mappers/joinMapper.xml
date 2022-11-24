@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 다른 mapper와 중복되지 않도록 네임스페이스 기재 -->
+<!-- userid 는 참여자, userid2 는(은) 모집자 -->
+<mapper namespace="join">
+	<select id="findMember" resultType="int">
+	select count(*)
+	from join
+	<choose>
+		<when test="jno != 0">
+		where jno=#{jno}
+		</when>
+		<otherwise>
+		where bno=#{bno} and (userid=#{userid} or userid2=#{userid})
+		</otherwise>
+	</choose>
+	</select>
+	
+	<select id="read" resultType="joinDTO">
+	select *
+	from join
+	where jno=#{jno}
+	</select>
+	
+	<insert id="create">
+	insert into join(jno,bno,userid,userid2,ismatch)
+	values (join_seq.nextval,#{bno},#{userid},#{userid2},#{ismatch})
+	</insert>
+	
+	<select id="count" resultType="int">
+	select count(*)
+	from join
+	<choose>
+		<when test="bno != 0">
+		where bno=#{bno}
+		</when>
+		<when test="userid != null">
+		where (userid=#{userid} or userid2=#{userid})
+		</when>
+	</choose>
+	<choose>
+		<when test="ismatch == 'all'">
+		</when>
+		<otherwise>
+		and ismatch=#{ismatch}
+		</otherwise>
+	</choose>
+	</select>
+	
+	<select id="listAll" resultType="joinDTO">
+	select *
+	from (
+		select rownum as rn, A.*
+		from (
+			select jno,bno,j.userid,teamid,tel,email,ismatch
+			from join j, member m
+			where j.userid=m.userid
+			and bno=#{bno}
+			order by jno asc
+		) A
+	) where rn between #{start} and #{end}
+	</select>
+	
+	<select id="matchListAll" resultType="joinDTO">
+	select *
+	from (
+		select rownum as rn, A.*
+		from (
+			select jno,j.userid2,b.bno,m.teamid,b.title,b.place,b.calendar,j.ismatch
+			from join j,board b,member m
+			where b.writer=j.userid2 and j.userid=#{userid} 
+            and j.bno=b.bno and j.userid2=m.userid
+			union all
+			select jno,j.userid,b.bno,m.teamid,b.title,b.place,b.calendar,j.ismatch
+            from join j,board b,member m
+            where b.writer=j.userid2 and j.userid2=#{userid}
+            and j.bno=b.bno and j.userid = m.userid 
+			order by calendar desc
+		) A
+	) where rn between #{start} and #{end}
+	</select>
+	
+	<update id="changeMatch">
+	update join
+	set ismatch=#{ismatch}
+	where jno=#{jno}
+	</update>
+	
+	<delete id="delete">
+	delete from join
+	<choose>
+		<when test="jno != 0">
+		where jno=#{jno}
+		</when>
+		<otherwise>
+		where bno=#{bno} and (userid=#{userid} or userid2=#{userid})
+		</otherwise>
+	</choose>
+	</delete>
+	
+	<delete id="deleteBno">
+	delete from join
+	where bno=#{bno}
+	</delete>
+	
+	<select id="findUserid" resultType="String">
+	select userid2
+	from join
+	where jno=#{jno}
+	</select>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
